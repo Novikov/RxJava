@@ -15,8 +15,10 @@ fun main() {
 //    subscriberExample2()
 //    flowableExample2()
 //    flowableExample3()
-    flowableStrategiesExample1()
+//    flowableStrategiesExample1()
 //    flowableStrategiesExample2()
+//    flowableStrategiesExample3()
+//    flowableStrategiesExample4()
 }
 
 /**Первая проблема - если в каком то одном подписчике вычисления будут занимать длительное время - то весь поток событий пойдет сначала на более свободный подписчик */
@@ -61,8 +63,8 @@ data class MyItem(val id: Int) {
 
 /** Теперь отправка и прием событий происходит в интервальной манере.
 По умолчанию размер буфера 128 элементов. Это значит что будет именно выпуск 128 элементов. Обработка всегда будет отставать.
- Обрабатываться будет менее 100 событий, но в конечном счете обработаются все события. Чем ближе к концу последовательности тем меньше будет
- количество выпущенных элементов и тем больше будет количество обработанных событий.*/
+Обрабатываться будет менее 100 событий, но в конечном счете обработаются все события. Чем ближе к концу последовательности тем меньше будет
+количество выпущенных элементов и тем больше будет количество обработанных событий.*/
 fun flowableExample() {
     Flowable.range(1, 1000)
         .map { MyItem(it) }
@@ -196,7 +198,8 @@ fun flowableStrategiesExample2() {
     Thread.sleep(70000)
 }
 
-fun flowStrategiesExample3() {
+/** Произойдет пропуск элементов которые не успели пройти, но в отличие от Drop последний элемент обязательно отрисуется */
+fun flowableStrategiesExample3() {
     val source = Observable.range(1, 1000)
     source.toFlowable(BackpressureStrategy.DROP)
         .map { MyItem(it) }
@@ -206,5 +209,28 @@ fun flowStrategiesExample3() {
             Thread.sleep(100)
         }
     Thread.sleep(7000)
-
 }
+
+
+fun flowableStrategiesExample4() {
+    val source = Observable.range(1, 1000)
+    source.toFlowable(BackpressureStrategy.LATEST)
+        .map { MyItem(it) }
+        .observeOn(Schedulers.computation())
+        .subscribe {
+            print("Rec $it;\t")
+            Thread.sleep(100)
+        }
+    Thread.sleep(70000)
+}
+
+/** Данная стратегия не используется так же как предыдущие.
+ * Если мы попытаемся это сделать, то получим Exception
+ * Ее нужно использовать при создании Observable с помощью методов onBackPressureXXX()
+ * Всего их 3:
+ * onBackpressureBuffer()
+ * onBackpressureDrop()
+ * onBackpressureLatest()
+ * Добавить вызов методов можно после toFlowable(BackpressureStrategy.MISSING). Пример ниже.
+ * */
+
