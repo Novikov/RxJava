@@ -2,6 +2,9 @@ import io.reactivex.*
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.schedulers.Schedulers
+import org.reactivestreams.Subscriber
+import org.reactivestreams.Subscription
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -12,7 +15,7 @@ fun main() {
 //    singleExample2()
 //    completableExample()
 //    maybeExample()
-//    flowableExample()
+//    flowableExampleInColdEmitters()
 }
 
 /** Cold Observable example - Выпуск значений произойдет только после подписки */
@@ -124,7 +127,7 @@ fun maybeExample() {
 }
 
 /** Такой же абстрактный Observable, но с поддержкой backpressure (обработка большого количества событий)*/
-fun flowableExample() {
+private fun flowableExampleInColdEmitters() {
     val flowable = Flowable.create<String>({ emitter ->
         for (i in 1..10) {
             emitter.onNext(i.toString())
@@ -137,5 +140,6 @@ fun flowableExample() {
         onComplete = { println("complete event") },
         onError = { println(it) })
 }
+
 
 
