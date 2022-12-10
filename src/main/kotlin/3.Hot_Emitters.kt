@@ -1,15 +1,16 @@
+import io.reactivex.Observable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.subjects.AsyncSubject
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.ReplaySubject
+import java.util.concurrent.TimeUnit
 
 fun main() {
 //    publishSubjectExample()
 //    behaviourSubjectExample()
 //    replaySubjectExample()
 //    asyncSubjectExample()
-    connectableObservableExample()
 }
 
 /** Hot emitter способен распространять данные без активных подписок*/
