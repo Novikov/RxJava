@@ -63,7 +63,7 @@ fun errorHandlingExample4() {
             onError = { println("Error") })
 }
 
-/** Переподписка будет происходить всякий раз пока условие удовлетворяет предикату*/
+/** Переподписка будет происходить всякий раз пока условие удовлетворяет предикату */
 fun errorHandlingExample5() {
     var retryCount = 0
     Observable.just(1, 2, 3, 4, 5)
