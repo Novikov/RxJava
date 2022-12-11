@@ -71,7 +71,5 @@ fun errorHandlingExample5() {
         .retry { _, _ ->
             (++retryCount) < 3
         }
-        .subscribeBy(
-            onNext = { println("Received $it") }, onError = { println("Error") }
-        )
+        .subscribeBy(onNext = { println("Received $it") }, onError = { println("Error") })
 }
