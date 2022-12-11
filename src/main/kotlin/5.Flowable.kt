@@ -33,13 +33,13 @@ fun backpressureProblemExample() {
         .just(1, 2, 3, 4, 5, 6, 7, 8, 9)
 
     val subject = BehaviorSubject.create<Int>()
-    subject.observeOn(Schedulers.computation())//(2)
+    subject.observeOn(Schedulers.computation())
         .subscribe {
             println("Subs 1 Received $it")
             Thread.sleep(200)
         }
 
-    subject.observeOn(Schedulers.computation())//(5)
+    subject.observeOn(Schedulers.computation())
         .subscribe {
             println("Subs 2 Received $it")
         }
@@ -53,7 +53,7 @@ fun backpressureProblemExample2() {
     val observable = Observable.interval(1, TimeUnit.MILLISECONDS)
     observable.map { MyItem(it.toInt()) }
         //интересно то что если включить Schedulers.io, то все будет работать как надо. Одна отправка один прием todo Разобраться почему.
-        .observeOn(Schedulers.io())//(3)
+        .observeOn(Schedulers.io())
         .subscribe {
             println("Received $it on ${Thread.currentThread().name}")
             Thread.sleep(200)
@@ -115,7 +115,7 @@ fun subscriberExample() {
         }
     }
 
-    Flowable.range(1, 1000)//(1)
+    Flowable.range(1, 1000)
         .map { MyItem(it) }
         .observeOn(Schedulers.io())
         .subscribe(subscriber)
@@ -125,7 +125,7 @@ fun subscriberExample() {
 
 /** Переписанный выше пример через лямду. Интересно то, что тут не стопорится обработка событий в отличие от предыдущего */
 fun subscriberExample2() {
-    Flowable.range(1, 1000)//(1)
+    Flowable.range(1, 1000)
         .map { MyItem(it) }
         .observeOn(Schedulers.io())
         .doOnSubscribe { it.request(128) }
@@ -156,10 +156,9 @@ fun flowableExample2() {
 
 object GenerateFlowableItem {
     var item: Int = 0
-        //(3)
         get() {
             field += 1
-            return field//(4)
+            return field
         }
 }
 
@@ -275,7 +274,7 @@ fun connectableFlowableExample() {
 
 /** Метод buffer возвращает Flowable<List<T>>*/
 fun flowableSlowingDownExample1() {
-    val flowable = Flowable.range(1, 111)//(1)
+    val flowable = Flowable.range(1, 111)
     flowable.buffer(10)
         .subscribe { println(it) }
 }

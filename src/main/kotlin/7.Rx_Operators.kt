@@ -167,7 +167,7 @@ fun groupingExample() {
  *Как и merge данный оператор имеет concatArray и concatWith варианты */
 fun concatenatingExample1() {
     val observable1 = Observable.just(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-//            .take(2)//(1)
+//            .take(2)
         .map { "X $it" }
 
     val observable2 = Observable.just(11, 12, 13, 14, 15, 16, 17, 18, 19, 20).map { "Y $it" }
