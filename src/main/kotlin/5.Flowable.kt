@@ -21,7 +21,10 @@ fun main() {
 //    flowableStrategiesExample3()
 //    flowableStrategiesExample4()
 //    flowableStrategiesExample5()
-    connectableFlowableExample()
+//    connectableFlowableExample()
+//    flowableSlowingDownExample1()
+//    flowableSlowingDownExample2()
+    flowableSlowingDownExample3()
 }
 
 /**Первая проблема - если в каком то одном подписчике вычисления будут занимать длительное время - то весь поток событий пойдет сначала на более свободный подписчик */
@@ -174,7 +177,7 @@ fun flowableExample3() {
     Thread.sleep(3000)
 }
 
-/** Накапливает все события в буфер и выгружает порциями в Subscriber. Насколько я понял - дефолтная стратегия*/
+/**Данная стратегия работает на выпуск данных. Накапливает все события в буфер и выгружает порциями в Subscriber. Насколько я понял - дефолтная стратегия*/
 fun flowableStrategiesExample1() {
     val source = Observable.range(1, 300)
     source.toFlowable(BackpressureStrategy.BUFFER)
@@ -187,7 +190,7 @@ fun flowableStrategiesExample1() {
     Thread.sleep(70000)
 }
 
-/** При переполнении буфера (более 128 эмитов) над обработанными событиями выбрасывается OnErrorNotImplementedException*/
+/** Данная стратегия работает на выпуск данных. При переполнении буфера (более 128 эмитов) над обработанными событиями выбрасывается OnErrorNotImplementedException*/
 fun flowableStrategiesExample2() {
     val source = Observable.range(1, 1000) // Если написать 128 то ошибки не будет
     source.toFlowable(BackpressureStrategy.ERROR)
@@ -201,7 +204,8 @@ fun flowableStrategiesExample2() {
     Thread.sleep(70000)
 }
 
-/** То что успело вывестись - то вывелось, остальное пропадает */
+/**Так же работает на выпуск данных. То что успело выйти в subscriber - выйдет. Затем произойдет переключение на обработку */
+// TODO: Непонятно почему после обработки emitter стопорится. Ведь даже если стратегия drop - должна происходить интервальная работа (Выпуск/Обработка)
 fun flowableStrategiesExample3() {
     val source = Observable.range(1, 1000)
     source.toFlowable(BackpressureStrategy.DROP)
@@ -209,9 +213,9 @@ fun flowableStrategiesExample3() {
         .observeOn(Schedulers.computation())
         .subscribe {
             print("Rec $it;\t")
-            Thread.sleep(100)
+            Thread.sleep(10)
         }
-    Thread.sleep(7000)
+    Thread.sleep(70000)
 }
 
 /** Произойдет пропуск элементов которые не успели пройти, но в отличие от Drop последний элемент обязательно отрисуется */
@@ -236,7 +240,7 @@ fun flowableStrategiesExample4() {
  * Добавить вызов методов можно после toFlowable(BackpressureStrategy.MISSING). Пример ниже.
  * */
 
-// TODO: Разобрать подробнее
+// TODO: Разобрать подробнее. Не уверен что делают методы onBackPressureXXX()
 fun flowableStrategiesExample5() {
     val source = Observable.range(1, 300)
     source.toFlowable(BackpressureStrategy.MISSING)
@@ -267,3 +271,44 @@ fun connectableFlowableExample() {
     connectableFlowable.connect()
 }
 
+/** Управление замедлением эмиссии*/
+
+/** Метод buffer возвращает Flowable<List<T>>*/
+fun flowableSlowingDownExample1() {
+    val flowable = Flowable.range(1, 111)//(1)
+    flowable.buffer(10)
+        .subscribe { println(it) }
+}
+
+/** buffer со сдвигом. Всего есть 3 способа его использования:
+ * skip > buffer
+ * skip == buffer
+ * skip < buffer
+ */
+fun flowableSlowingDownExample2() {
+    val flowable = Flowable.range(1, 111)
+//        flowable.buffer(10,1)
+//    flowable.buffer(10, 10)
+    flowable.buffer(1, 10)
+        .subscribe { println("Subscription $it") }
+}
+
+/** Buffer с временной задержкой*/
+fun flowableSlowingDownExample3() {
+    val flowable = Flowable.interval(100, TimeUnit.MILLISECONDS)
+    flowable.buffer(1, TimeUnit.SECONDS)
+        .subscribe { println(it) }
+    Thread.sleep(5000)
+}
+
+fun flowableSlowingDownExample4() {
+    val boundaryFlowable = Flowable.interval(350, TimeUnit.MILLISECONDS)
+
+    val flowable = Flowable.interval(100, TimeUnit.MILLISECONDS)
+    flowable.buffer(boundaryFlowable)
+        .subscribe { println(it) }
+
+    Thread.sleep(500)
+}
+
+// TODO: Разобрать методы window() и throttleFirst()
