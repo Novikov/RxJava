@@ -19,6 +19,7 @@ fun main() {
 //    flowableStrategiesExample2()
 //    flowableStrategiesExample3()
 //    flowableStrategiesExample4()
+    flowableStrategiesExample5()
 }
 
 /**Первая проблема - если в каком то одном подписчике вычисления будут занимать длительное время - то весь поток событий пойдет сначала на более свободный подписчик */
@@ -198,7 +199,7 @@ fun flowableStrategiesExample2() {
     Thread.sleep(70000)
 }
 
-/** Произойдет пропуск элементов которые не успели пройти, но в отличие от Drop последний элемент обязательно отрисуется */
+/** То что успело вывестись - то вывелось, остальное пропадает */
 fun flowableStrategiesExample3() {
     val source = Observable.range(1, 1000)
     source.toFlowable(BackpressureStrategy.DROP)
@@ -211,7 +212,7 @@ fun flowableStrategiesExample3() {
     Thread.sleep(7000)
 }
 
-
+/** Произойдет пропуск элементов которые не успели пройти, но в отличие от Drop последний элемент обязательно отрисуется */
 fun flowableStrategiesExample4() {
     val source = Observable.range(1, 1000)
     source.toFlowable(BackpressureStrategy.LATEST)
@@ -224,13 +225,26 @@ fun flowableStrategiesExample4() {
     Thread.sleep(70000)
 }
 
-/** Данная стратегия не используется так же как предыдущие.
- * Если мы попытаемся это сделать, то получим Exception
- * Ее нужно использовать при создании Observable с помощью методов onBackPressureXXX()
+/** Если я понял правильно, то данная стратегия снимает дефолтную стратегию, но после этого наш Flowable перестает работать ожидаемым образом и бросает
+ * исключение. Чтобы это побороть - нужно использовать методы onBackPressureXXX(). Они снова устанавливают стратегию.
  * Всего их 3:
  * onBackpressureBuffer()
  * onBackpressureDrop()
  * onBackpressureLatest()
  * Добавить вызов методов можно после toFlowable(BackpressureStrategy.MISSING). Пример ниже.
  * */
+
+// TODO: Разобрать подробнее
+fun flowableStrategiesExample5() {
+    val source = Observable.range(1, 300)
+    source.toFlowable(BackpressureStrategy.MISSING)
+        .onBackpressureBuffer() // При отсутствии данного метода будет бросаться exception.
+        .map { MyItem(it) }
+        .observeOn(Schedulers.io())
+        .subscribe {
+            print("Rec $it;\t")
+            Thread.sleep(100)
+        }
+    Thread.sleep(60000)
+}
 
