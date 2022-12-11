@@ -1,6 +1,7 @@
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.rxkotlin.toFlowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import org.reactivestreams.Subscriber
@@ -19,7 +20,8 @@ fun main() {
 //    flowableStrategiesExample2()
 //    flowableStrategiesExample3()
 //    flowableStrategiesExample4()
-    flowableStrategiesExample5()
+//    flowableStrategiesExample5()
+    connectableFlowableExample()
 }
 
 /**Первая проблема - если в каком то одном подписчике вычисления будут занимать длительное время - то весь поток событий пойдет сначала на более свободный подписчик */
@@ -246,5 +248,22 @@ fun flowableStrategiesExample5() {
             Thread.sleep(100)
         }
     Thread.sleep(60000)
+}
+
+fun connectableFlowableExample() {
+    val connectableFlowable =
+        listOf("String 1", "String 2", "String 3", "String 4", "String 5")
+            .toFlowable()
+            .publish()
+
+    connectableFlowable.subscribe {
+        println("Subscription 1: $it")
+        Thread.sleep(100)
+        println("Subscription 1 delay")
+    }
+    connectableFlowable
+        .subscribe { println("Subscription 2 $it") }
+
+    connectableFlowable.connect()
 }
 
