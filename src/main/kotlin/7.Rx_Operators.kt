@@ -221,7 +221,7 @@ fun scanningExample3() {
 
 /** flatMap использует merge оператор concatMap использует concat operator */
 //Порядок изменился т.к используется merge оператор
-fun flatMapExample() {
+fun flatmapExample() {
     Observable.range(1, 10).flatMap {
         val randDelay = Random().nextInt(10)
         return@flatMap Observable.just(it).delay(randDelay.toLong(), TimeUnit.MILLISECONDS)
