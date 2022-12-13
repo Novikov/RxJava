@@ -20,11 +20,11 @@ fun main() {
 //    flowableStrategiesExample2()
 //    flowableStrategiesExample3()
 //    flowableStrategiesExample4()
-//    flowableStrategiesExample5()
+    flowableStrategiesExample5()
 //    connectableFlowableExample()
 //    flowableSlowingDownExample1()
 //    flowableSlowingDownExample2()
-    flowableSlowingDownExample3()
+//    flowableSlowingDownExample3()
 }
 
 /**Первая проблема - если в каком то одном подписчике вычисления будут занимать длительное время - то весь поток событий пойдет сначала на более свободный подписчик */
@@ -206,9 +206,9 @@ fun flowableStrategiesExample2() {
 /**Так же работает на выпуск данных. То что успело выйти в subscriber - выйдет. Затем произойдет переключение на обработку */
 // TODO: Непонятно почему после обработки emitter стопорится. Ведь даже если стратегия drop - должна происходить интервальная работа (Выпуск/Обработка)
 fun flowableStrategiesExample3() {
-    val source = Observable.range(1, 1000)
+    val source = Observable.interval(1, TimeUnit.MILLISECONDS)
     source.toFlowable(BackpressureStrategy.DROP)
-        .map { MyItem(it) }
+        .map { MyItem(it.toInt()) }
         .observeOn(Schedulers.computation())
         .subscribe {
             print("Rec $it;\t")
@@ -217,9 +217,14 @@ fun flowableStrategiesExample3() {
     Thread.sleep(70000)
 }
 
-/** Произойдет пропуск элементов которые не успели пройти, но в отличие от Drop последний элемент обязательно отрисуется */
+/** Так же произойдет пропуск событий которые не успели пройти, но в отличие от Drop последний элемент обязательно отрисуется */
 fun flowableStrategiesExample4() {
-    val source = Observable.range(1, 1000)
+    val source = Observable.create<Int> {
+        for (i in 0..1000){
+            it.onNext(i)
+            Thread.sleep(1)
+        }
+    }
     source.toFlowable(BackpressureStrategy.LATEST)
         .map { MyItem(it) }
         .observeOn(Schedulers.computation())
@@ -241,7 +246,12 @@ fun flowableStrategiesExample4() {
 
 // TODO: Разобрать подробнее. Не уверен что делают методы onBackPressureXXX()
 fun flowableStrategiesExample5() {
-    val source = Observable.range(1, 300)
+    val source = Observable.create<Int> {
+        for (i in 0..1000){
+            it.onNext(i)
+            Thread.sleep(1)
+        }
+    }
     source.toFlowable(BackpressureStrategy.MISSING)
         .onBackpressureBuffer() // При отсутствии данного метода будет бросаться exception.
         .map { MyItem(it) }
