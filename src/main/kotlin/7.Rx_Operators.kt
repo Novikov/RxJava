@@ -11,6 +11,7 @@ fun main() {
 //    zippingExample2()
 //    zippingExample3()
 //    zippingExample4()
+    zippingExample5()
 
     //merging
 //    mergingExample1()
@@ -33,7 +34,7 @@ fun main() {
     //flatting
 //    flatmapExample()
 //    concatMapExample()
-    switchMapExample()
+//    switchMapExample()
 }
 
 /** Zipping */
@@ -94,6 +95,19 @@ fun zippingExample4() {
 
     Thread.sleep(1000)
 }
+
+/** В результате имеем событие на каждое событие из onservable1, а из observable2 будет браться последнее значение. Отличается от combineLatest тем то что
+ * тут есть приоритет к observable на котором применен оператор. */
+fun zippingExample5() {
+    val observable1 = Observable.interval(100, TimeUnit.MILLISECONDS)
+    val observable2 = Observable.interval(250, TimeUnit.MILLISECONDS)
+
+    observable1.withLatestFrom(observable2, BiFunction { t1: Long, t2: Long -> "t1: ${t1 + 100}, t2: $t2" })
+        .subscribe { println("Received $it") }
+
+    Thread.sleep(1000)
+}
+
 
 /** Merging*/
 
