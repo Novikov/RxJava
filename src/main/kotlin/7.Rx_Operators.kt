@@ -11,7 +11,7 @@ fun main() {
 //    zippingExample2()
 //    zippingExample3()
 //    zippingExample4()
-    zippingExample5()
+//    zippingExample5()
 
     //merging
 //    mergingExample1()
@@ -33,7 +33,7 @@ fun main() {
 
     //flatting
 //    flatmapExample()
-//    concatMapExample()
+    concatMapExample()
 //    switchMapExample()
 }
 

@@ -9,7 +9,7 @@ import org.reactivestreams.Subscription
 import java.util.concurrent.TimeUnit
 
 fun main() {
-//    backpressureProblemExample()
+    backpressureProblemExample()
 //    backpressureProblemExample2()
 //    flowableExample()
 //    subscriberExample()
@@ -20,7 +20,7 @@ fun main() {
 //    flowableStrategiesExample2()
 //    flowableStrategiesExample3()
 //    flowableStrategiesExample4()
-    flowableStrategiesExample5()
+//    flowableStrategiesExample5()
 //    connectableFlowableExample()
 //    flowableSlowingDownExample1()
 //    flowableSlowingDownExample2()
