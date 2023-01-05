@@ -8,8 +8,8 @@ import io.reactivex.subjects.Subject
 fun main() {
 //    imperativeStyle()
 //    declarativeStyle()
-//    pull()
-    push()
+    pull()
+//    push()
 }
 
 /** Описываем как получить желаемый результат */
@@ -64,26 +64,5 @@ fun push() {
         onComplete = { println("Done!") }
     )
 }
-
-/** Disposing*/
-
-fun disposing() {
-    val list: List<Any> = listOf("One", 2, "Three", "Four", 4.5, "Five", 6.0f)
-    val observable: Observable<Any> = list.toObservable();
-    val disposable = observable.subscribeBy(
-        onNext = { println(it) },
-        onError = { it.printStackTrace() },
-        onComplete = { println("Done!") }
-    )
-//    disposable.dispose() //Метод по очистке подписки. У disposable доступен только он.
-
-    val compositeDisposable = CompositeDisposable()
-    compositeDisposable.add(disposable)
-
-    // У composite disposable доступно 2 метода
-    compositeDisposable.dispose() //Данный метод очищает сomposite disposable + выключает возможность подписки для всех эмиттеров
-    compositeDisposable.clear()
-}
-
 
 
