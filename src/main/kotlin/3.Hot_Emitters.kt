@@ -7,13 +7,12 @@ import io.reactivex.subjects.ReplaySubject
 fun main() {
 //    publishSubjectExample()
 //    behaviourSubjectExample()
-//    replaySubjectExample()
+    replaySubjectExample()
 //    asyncSubjectExample()
 }
 
 /** Hot emitter способен распространять данные без активных подписок + является не только поставщиком, но и потребителем событий. */
-
-/**Отправит следующее событие в каждую подписку. После onComplete прекращает отправку событий и любая новая подписка ничего не получит. */
+/** Отправит следующее событие в каждую подписку. После onComplete прекращает отправку событий и любая новая подписка ничего не получит. */
 fun publishSubjectExample() {
     val subject = PublishSubject.create<Int>()
     subject.onNext(1)
@@ -33,7 +32,7 @@ fun publishSubjectExample() {
     subject.onNext(5)
     subject.onNext(6)
 
-    subject.onComplete() //После complete event - subscriber 3 более не получит событий
+    subject.onComplete() //После complete event - subscriber 3 и subscriber 1,2 более не получат событий
 
     subject.subscribeBy(onError = { println(it.message) },
         onComplete = { println("subscriber 3 onComplete") },
@@ -68,7 +67,11 @@ fun behaviourSubjectExample() {
 
 
 /** Для нового подписчика воспроизводит всю предыдущую последовательность событий. Аналогичное поведение как в Behaviour subject. После отправки
- * последовательности в подписчик - начинает работать как Publish subject.*/
+ * последовательности в подписчик - начинает работать как Publish subject.
+ *
+ * Данный subject создается с динамическим буфером и может хранить довольно большое число элементов. С помощью createWith() можно ограничить буфер до
+ * определенного числа и подписчики увидят только определенное количество последних элементов.
+ * */
 fun replaySubjectExample() {
     val subject = ReplaySubject.create<Int>()
     subject.onNext(1)

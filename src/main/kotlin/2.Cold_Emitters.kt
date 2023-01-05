@@ -18,7 +18,7 @@ fun main() {
 //    flowableExampleInColdEmitters()
 }
 
-/** Cold Observable example - Выпуск значений произойдет только после подписки */
+/** Cold emitter - Выпуск значений произойдет только после подписки */
 
 /** Абстрактный Observable*/
 fun simpleObservable() {

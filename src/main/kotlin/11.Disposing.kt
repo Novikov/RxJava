@@ -11,6 +11,8 @@ fun main() {
     serialDisposableExample()
 }
 
+/** RXJava накладывает обязательство отписаться от источника данных после подписки. Иначе может быть memory leak или crash*/
+
 fun disposableExample() {
     val list: List<Any> = listOf(1, 2, 3)
     val observable: Observable<Any> = list.toObservable();
