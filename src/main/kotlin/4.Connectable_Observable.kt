@@ -2,11 +2,11 @@ import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
 
 fun main() {
-    //connectableObservableExample()
+    connectableObservableExample()
     //connectableObservableExample2()
     //connectableObservableExample3()
     //connectableObservableExample4()
-    connectableObservableExample5()
+//    connectableObservableExample5()
 }
 
 /** Connectable Observable - разновидность hot emitter*/
