@@ -60,12 +60,13 @@ fun simpleObservable2() {
     val subscription = observable.subscribeBy(onNext = { println(it) }, onComplete = { println("Complete") })
 }
 
-/** Существуют модификации Observable которые более лаконично выражают цели его использования. Observable это более тип эмиттера*/
+/** Существуют модификации Observable которые более лаконично выражают цели его использования. Observable это более абстрактный тип эмиттера*/
 
+/** SINGLE, COMPLETABLE, MAYBE - РАЗОВЫЕ ОПЕРАЦИИ*/
 
 /**  Выпускают или событие об успешном завершении (success) или об ошибки (error). События типа
 success – это комбинация событий next и complete. Этот тип Observable полезен для разовых операций которые
-либо будут успешно завершены, либо потерпят неудачу. Пример – загрузка данных или выгрузка их на диск.*/
+либо будут успешно завершены c каким то РЕЗУЛЬТАТОМ, либо потерпят неудачу. Пример – чтение содержимого файла. */
 
 fun singleExample() {
     val single = Single.create<String> {
@@ -76,6 +77,7 @@ fun singleExample() {
     single.subscribeBy(onError = { println(it.message) }, onSuccess = { println(it) })
 }
 
+/** Пример - чтение файла. Или успешно с результатом или ошибка*/
 fun singleExample2() {
     val subscriptions = CompositeDisposable()
     fun loadText(filename: String): Single<String> {
@@ -90,7 +92,7 @@ fun singleExample2() {
         }
     }
 
-    val observer = loadText("copyright.txt")
+    val observer = loadText("/Users/igornovikov/Git/RxJava/src/main/kotlin/copyright.txt")
         .subscribeBy(
             onSuccess = { println(it) },
             onError = { println("Error, $it") })
@@ -99,7 +101,7 @@ fun singleExample2() {
 
 /** Выпускает только событие о завершение или ошибке.Такой издатель не выпускает никаких
 значений. Это используется для операций, где нам нужно узнать успешно ли она завершилась или с ошибкой.
-Пример запись файла на диск.*/
+Пример запись файла на диск. Нам не нужно знать какие данные записались, а сам факт что это произошло. */
 fun completableExample() {
     val completable = Completable.create {
         it.onError(Throwable("Error event")) // после error - onComplete не придет.
