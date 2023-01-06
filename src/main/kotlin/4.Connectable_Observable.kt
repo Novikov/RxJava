@@ -2,10 +2,10 @@ import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
 
 fun main() {
-//    connectableObservableExample()
+    connectableObservableExample()
 //    connectableObservableExample2()
 //    connectableObservableExample3()
-    connectableObservableExample4()
+//    connectableObservableExample4()
 //    connectableObservableExample5()
 }
 
