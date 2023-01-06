@@ -2,10 +2,10 @@ import io.reactivex.Observable
 import java.util.concurrent.TimeUnit
 
 fun main() {
-    connectableObservableExample()
-    //connectableObservableExample2()
-    //connectableObservableExample3()
-    //connectableObservableExample4()
+//    connectableObservableExample()
+//    connectableObservableExample2()
+//    connectableObservableExample3()
+    connectableObservableExample4()
 //    connectableObservableExample5()
 }
 
@@ -67,6 +67,8 @@ fun connectableObservableExample2() {
  * refcount() - возращает Observable(), а не ConnecntableObservable().
  * Этот Observable будет жить до тех пор пока есть хоть одна подписка на него (т.е делаем его cold)
  * Если вызвать dispose на всех подписках, то эмиссия прекратится. При повторной подписке эмиссия начнется с самого начала.
+ *
+ * TODO Данный пример бросает java.lang.InterruptedException: sleep interrupted. Разобраться почему.
  */
 fun connectableObservableExample3() {
     val observable2 = Observable.interval(1, TimeUnit.SECONDS)
@@ -158,7 +160,7 @@ fun connectableObservableExample4() {
 
 }
 
-// TODO: replay().refcount() разобрать отдельно
+// TODO: replay().refcount() == share
 fun connectableObservableExample5() {
     val observable = Observable.interval(1, TimeUnit.MILLISECONDS)
         .doOnDispose { println("Observable dispose") }

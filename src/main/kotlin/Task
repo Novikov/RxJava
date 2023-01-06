@@ -5,3 +5,4 @@
 5.Почему ConnectableObservable hot?
 6.Разобрать PublishProcessor
 7.Пересмотреть получасовой видос
+8.Есть ли способ поддерживать backpressure для subjects?
