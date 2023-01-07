@@ -24,7 +24,7 @@ fun main() {
 
     //concatenating
 //    concatenatingExample1()
-    concatenatingExample2()
+//    concatenatingExample2()
 
     //scanning
 //    scanningExample1()
@@ -33,6 +33,8 @@ fun main() {
 
     //flatting
 //    flatmapExample()
+//    flatmapExample1()
+    flatmapExample2()
 //    concatMapExample()
 //    switchMapExample()
 }
@@ -225,13 +227,33 @@ fun scanningExample3() {
 }
 
 /** flatting */
+/** map возвращает Collection с примененной лямбдой на каждый элемент этой Collection */
+/** flatMap возвращает Observable c 0,1 или n данными на каждый элемент эмиссии по цепочке выше, не поддерживает порядок эмиссии */
 
-/** flatMap использует merge оператор concatMap использует concat operator */
-//Порядок изменился т.к используется merge оператор
+//empty
 fun flatmapExample() {
+    Observable.range(1, 10).flatMap {
+        return@flatMap Observable.empty<Int>()
+    }.blockingSubscribe {
+        println("Received $it")
+    }
+}
+
+//1 элемент на каждую эмиссию
+fun flatmapExample1() {
     Observable.range(1, 10).flatMap {
         val randDelay = Random().nextInt(10)
         return@flatMap Observable.just(it).delay(randDelay.toLong(), TimeUnit.MILLISECONDS)
+    }.blockingSubscribe {
+        println("Received $it")
+    }
+}
+
+//Несколько элементов на каждую эмиссию
+fun flatmapExample2() {
+    Observable.range(1, 10).flatMap {
+        val randDelay = Random().nextInt(10)
+        return@flatMap Observable.just("A", it).delay(randDelay.toLong(), TimeUnit.MILLISECONDS)
     }.blockingSubscribe {
         println("Received $it")
     }

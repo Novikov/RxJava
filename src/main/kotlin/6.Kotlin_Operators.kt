@@ -5,9 +5,12 @@ fun main() {
 }
 
 //отображения
+/** map возвращает Collection с примененной лямбдой на каждый элемент этой Collection */
 fun mapFun() {
     val arr = arrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9)
-    val result = arr.map { it * 10 }
+    val result = arr.map {
+        it * 10
+    }
 
     println(result)
 }
