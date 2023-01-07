@@ -1,7 +1,7 @@
 fun main() {
-//    mapFun()
+    mapFun()
 //    flatmapFun()
-    foldFun()
+//    foldFun()
 }
 
 //отображения
