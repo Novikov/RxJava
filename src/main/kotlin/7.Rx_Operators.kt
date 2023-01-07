@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 fun main() {
     //zipping
-//    zippingExample1()
+    zippingExample1()
 //    zippingExample2()
 //    zippingExample3()
 //    zippingExample4()
@@ -34,9 +34,11 @@ fun main() {
     //flatting
 //    flatmapExample()
 //    flatmapExample1()
-    flatmapExample2()
+//    flatmapExample2()
 //    concatMapExample()
 //    switchMapExample()
+//    switchMapExample2()
+//    switchMapExample3()
 }
 
 /** Zipping */
@@ -259,7 +261,7 @@ fun flatmapExample2() {
     }
 }
 
-//Порядок не изменился т.к используется concat оператор
+/** Сoncat map брат близнец flatmap, но с поддержкой порядка эмиссии. Выполняется медленнее чем flatmap*/
 fun concatMapExample() {
     Observable.range(1, 10).concatMap {
         val randDelay = Random().nextInt(10)
@@ -269,19 +271,45 @@ fun concatMapExample() {
     }
 }
 
-/** Если нет задержки, то он выводит все элементы, если есть задержка - только последнее значение, пропуская промежуточные */
+/**
+ * Содержит в себе поведение flatmap и concatmap. Т.е может вернуть Observable с 0, 1 ... N количеством данных на каждый элемент эмиссии по цепочке выше.
+ * + Поддерживает порядок эмиссии. Но если возвращаемый observable будет с задержкой - вернется последний, а предыдущие пропустятся.
+ *
+ * Он лучше всего подходит, для ситуаций где необходимо проигнорировать промежуточные результаты и рассмотреть последний (поиск).
+ * SwitchMap отписывается от предыдущего источника Observable всякий раз, когда новый элемент начинает излучать данные,
+ * тем самым всегда эмитит данные из текущего Observable */
 fun switchMapExample() {
     println("Without delay \n")
     Observable.range(1, 10) //данная эмиссия будет происходить последовательно, как в concatMap.
         .switchMap {
-            return@switchMap Observable.just(it)
+            return@switchMap Observable.just(it, "ASD")
         }.blockingSubscribe { println("Received $it") }
+}
 
+fun switchMapExample2() {
     println("\nWith delay \n")
     Observable.range(1, 10).switchMap {
         val randDelay = Random().nextInt(10)
-        return@switchMap Observable.just(it).delay(randDelay.toLong(), TimeUnit.MILLISECONDS)
+        return@switchMap Observable.just(it, "XYZ").delay(randDelay.toLong(), TimeUnit.MILLISECONDS)
     }.blockingSubscribe {
         println("Received $it")
     }
+}
+
+fun switchMapExample3() {
+    println("\nWith delay and error \n")
+    Observable.range(1, 10).switchMap { counter ->
+        val randDelay = Random().nextInt(10)
+        return@switchMap Observable.create {
+            it.onNext(counter)
+            it.onError(RuntimeException("Error"))
+            it.onNext("ASD")
+        }
+            .onErrorReturn { "Error from onErrorReturn" } // обязательно должен присутствовать иначе приложение крашнится даже если есть subscbe с обработкой ошибок.
+            .delay(randDelay.toLong(), TimeUnit.MILLISECONDS)
+    }.blockingSubscribe({
+        println("Received $it")
+    }, {
+        println("Error")
+    })
 }
