@@ -3,11 +3,11 @@ import io.reactivex.rxkotlin.subscribeBy
 import java.lang.RuntimeException
 
 fun main() {
-//    errorHandlingExample1()
+    errorHandlingExample1()
 //    errorHandlingExample2()
 //    errorHandlingExample3()
 //    errorHandlingExample4()
-    errorHandlingExample5()
+//    errorHandlingExample5()
 }
 
 /** Если не указать обработчик ошибок, то при получении ошибки в цепи -
