@@ -1,5 +1,6 @@
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
+import io.reactivex.rxkotlin.blockingSubscribeBy
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.rxkotlin.zipWith
 import java.util.*
@@ -17,14 +18,13 @@ fun main() {
 //    mergingExample1()
 //    mergingExample2()
 //    mergingExample3()
-//    mergingExample4()
 
     //grouping
 //    groupingExample()
 
     //concatenating
 //    concatenatingExample1()
-//    concatenatingExample2()
+    concatenatingExample2()
 
     //scanning
 //    scanningExample1()
@@ -33,13 +33,13 @@ fun main() {
 
     //flatting
 //    flatmapExample()
-    concatMapExample()
+//    concatMapExample()
 //    switchMapExample()
 }
 
 /** Zipping */
 
-/** Zip использует Bifunction для указания того как соединять элементы двух эмиссий.*/
+/** Zip выдаст результирующее событие только когда все внутренние observable, использует Bifunction для указания того как соединять элементы двух эмиссий.*/
 fun zippingExample1() {
     val observable1 = Observable.range(1, 10)
     val observable2 = Observable.range(11, 10)
@@ -83,7 +83,7 @@ fun zippingExample3() {
     Thread.sleep(1000)
 }
 
-/** Каждый новый элемент из первой эмиссии комбинируются с последним элементом из второй эмиссии*/
+/** Каждый новый элемент из первой эмиссии комбинируются с последним элементом из второй эмиссии (нет приоритета на один из observable)*/
 fun zippingExample4() {
     val observable1 = Observable.interval(100, TimeUnit.MILLISECONDS)
     val observable2 = Observable.interval(250, TimeUnit.MILLISECONDS)
@@ -111,28 +111,20 @@ fun zippingExample5() {
 
 /** Merging*/
 
-/** Merge отличается от zip, zipWIth и combineLatest тем, не накапливает элементы и реагирует на каждую эмиссию каждого Observable */
+/** Merge выдаст результирующее событие когда один из внутренние observable выпусутит событие. Этим и отличается от zip */
 fun mergingExample1() {
-    val observable1 = listOf("Kotlin", "Scala", "Groovy").toObservable()
-    val observable2 = listOf("Python", "Java", "C++", "C").toObservable()
+    val observable1 = Observable.interval(100, TimeUnit.MILLISECONDS)
+    val observable2 = Observable.interval(250, TimeUnit.MILLISECONDS)
 
     Observable.merge(observable1, observable2).subscribe {
         println("Received $it")
     }
-}
 
-/** Проблема merge в том, что не поддерживается порядок эмиссии. Каждое новое событие сразу отправляется на подписку */
-fun mergingExample2() {
-    val observable1 = Observable.interval(500, TimeUnit.MILLISECONDS).map { "Observable 1 $it" }
-    val observable2 = Observable.interval(100, TimeUnit.MILLISECONDS).map { "Observable 2 $it" }
-    Observable.merge(observable1, observable2).subscribe {
-        println("Received $it")
-    }
     Thread.sleep(1500)
 }
 
-/** Если мы хотим сохранять порядок, то можно воспользоваться нестатической перегрузкой mergeWith */
-fun mergingExample3() {
+/** перегрузка mergeWith*/
+fun mergingExample2() {
     val observable1 = listOf("Kotlin", "Scala", "Groovy").toObservable()
     val observable2 = listOf("Python", "Java", "C++", "C").toObservable()
     observable1.mergeWith(observable2).subscribe {
@@ -140,7 +132,8 @@ fun mergingExample3() {
     }
 }
 
-fun mergingExample4() {
+/** merge для n observables*/
+fun mergingExample3() {
     val observable1 = listOf("A", "B", "C").toObservable()
     val observable2 = listOf("D", "E", "F", "G").toObservable()
     val observable3 = listOf("I", "J", "K", "L").toObservable()
@@ -177,8 +170,8 @@ fun groupingExample() {
 
 /** Concatenating*/
 
-/** После получения complete в первом эмиттере подписка станет получать события от второго.
- *Как и merge данный оператор имеет concatArray и concatWith варианты */
+/** Эмиссия из второго observable начнется только после выпуска concat из первого observable.
+ * Как и merge данный оператор имеет concatArray и concatWith варианты */
 fun concatenatingExample1() {
     val observable1 = Observable.just(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 //            .take(2)
