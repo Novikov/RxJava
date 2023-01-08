@@ -6,8 +6,8 @@ import io.reactivex.subjects.ReplaySubject
 
 fun main() {
 //    publishSubjectExample()
-//    behaviourSubjectExample()
-    replaySubjectExample()
+    behaviourSubjectExample()
+//    replaySubjectExample()
 //    asyncSubjectExample()
 }
 
@@ -54,16 +54,16 @@ fun behaviourSubjectExample() {
         onNext = { println("subscriber 1 onNext - $it") })
     subject.onNext(2)
 
-    subject.subscribeBy(onError = { println(it.message) },
-        onComplete = { println("subscriber 2 onComplete") },
-        onNext = { println("subscriber 2 onNext - $it") })
-    subject.onNext(3)
-
-    subject.onComplete() //После complete event - subscriber 3 более не получит событий
-
-    subject.subscribeBy(onError = { println(it.message) },
-        onComplete = { println("subscriber 3 onComplete") },
-        onNext = { println("subscriber 3 onNext - $it") })
+//    subject.subscribeBy(onError = { println(it.message) },
+//        onComplete = { println("subscriber 2 onComplete") },
+//        onNext = { println("subscriber 2 onNext - $it") })
+//    subject.onNext(3)
+//
+//    subject.onComplete() //После complete event - subscriber 3 более не получит событий
+//
+//    subject.subscribeBy(onError = { println(it.message) },
+//        onComplete = { println("subscriber 3 onComplete") },
+//        onNext = { println("subscriber 3 onNext - $it") })
 }
 
 

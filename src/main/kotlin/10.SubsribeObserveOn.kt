@@ -3,6 +3,9 @@ import io.reactivex.ObservableOperator
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.ReplaySubject
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 fun main() {
@@ -13,7 +16,9 @@ fun main() {
 //    doubleObserveOnExample()
 //    doubleSubscribeOnExample()
 //    doubleSubscribeOnExample2()
-    operatorsWithSchedulers()
+//    operatorsWithSchedulers()
+//    subjectsRulesExample()
+    subjectsRulesExample2()
 }
 
 /** Вся теория рассказана тут https://habr.com/ru/company/rambler_and_co/blog/280388 */
@@ -306,4 +311,88 @@ fun operatorsWithSchedulers() {
     observable.subscribe(observer)
 
     Thread.sleep(2000)
+}
+
+
+/** При использовании Subjects стоит учесть то, что по умолчанию потребление данных будет выполняться в том же потоке,
+ * в котором был вызван метод onNext(), если в цепи не присутствует observeOn() */
+fun subjectsRulesExample() {
+
+    val observer: Observer<String> = object : Observer<String> {
+        override fun onComplete() {
+            println("Consumption onComplete [thread] - ${Thread.currentThread().name}\"")
+        }
+
+        override fun onNext(item: String) {
+            println("Consumption onNext $item [thread] - ${Thread.currentThread().name}")
+        }
+
+        override fun onError(e: Throwable) {
+            println("Consumption onError ${e.message} [thread] - ${Thread.currentThread().name}\"")
+        }
+
+        override fun onSubscribe(d: Disposable) {
+            println("Consumption onSubscribe [thread] - ${Thread.currentThread().name}\"")
+        }
+    }
+
+    val subject = BehaviorSubject.create<String>()
+
+    subject
+        .doOnNext { println("doOnNext $it [thread] - ${Thread.currentThread().name}\"") }
+        .observeOn(Schedulers.computation()) // Посмотри разницу с и без observeOn()
+        .subscribe(observer)
+
+    subject.onNext("str")
+
+    Executors.newCachedThreadPool().execute(Runnable {
+        Thread.sleep(1000)
+        subject.onNext("str2")
+    })
+
+    Thread.sleep(4000)
+}
+
+
+/** Исключение для правила из предыдущего примера. Когда мы подписываемся на subject, он сразу возвращает значение и оно обрабатывается потоке
+ * который указан через Scheduler в subscribeOn. Т.е в данном случае из Shedulers.io(),
+ * а вот когда приходит следующее сообщение в subject, то используется поток, в котором был вызван onNext()*/
+fun subjectsRulesExample2() {
+
+    val observer: Observer<String> = object : Observer<String> {
+        override fun onComplete() {
+            println("Consumption onComplete [thread] - ${Thread.currentThread().name}\"")
+        }
+
+        override fun onNext(item: String) {
+            println("Consumption onNext $item [thread] - ${Thread.currentThread().name}")
+        }
+
+        override fun onError(e: Throwable) {
+            println("Consumption onError ${e.message} [thread] - ${Thread.currentThread().name}\"")
+        }
+
+        override fun onSubscribe(d: Disposable) {
+            println("Consumption onSubscribe [thread] - ${Thread.currentThread().name}\"")
+        }
+    }
+
+    val subject = BehaviorSubject.create<String>()
+
+    subject.onNext("str 0 ") // TODO: Разобраться почему subscribeOn блокирует первое событие до подписки
+
+    subject
+        .doOnNext { println("doOnNext $it [thread] - ${Thread.currentThread().name}\"") }
+        .subscribeOn(Schedulers.io())
+//        .observeOn(Schedulers.computation())
+        .subscribe(observer)
+
+    subject.onNext("str 1")
+
+    Executors.newCachedThreadPool().execute(Runnable {
+        Thread.sleep(1000)
+        subject.onNext("str2")
+    })
+
+    Thread.sleep(4000)
 }
