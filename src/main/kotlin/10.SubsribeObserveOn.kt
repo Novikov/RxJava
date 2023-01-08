@@ -3,6 +3,7 @@ import io.reactivex.ObservableOperator
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 fun main() {
 //    withoutChangingThreadExample()
@@ -11,7 +12,8 @@ fun main() {
 //    unionSubscribeOnObserveOn()
 //    doubleObserveOnExample()
 //    doubleSubscribeOnExample()
-    doubleSubscribeOnExample2()
+//    doubleSubscribeOnExample2()
+    operatorsWithSchedulers()
 }
 
 /** Вся теория рассказана тут https://habr.com/ru/company/rambler_and_co/blog/280388 */
@@ -269,11 +271,39 @@ fun doubleSubscribeOnExample2() {
     observable
         .subscribeOn(Schedulers.io())
         .lift(ObservableOperator {
-            println("inside lift [thread] - ${Thread.currentThread().name}\"")  /** Тут можно получить поток из Scheduler указанного после lift. Насколько я понял тут с помощью list можно трансфортировать Observable. Для этого нужно разобрать принцип работы оператора*/
+            println("inside lift [thread] - ${Thread.currentThread().name}\"")
+            /** Тут можно получить поток из Scheduler указанного после lift. Насколько я понял тут с помощью list можно трансфортировать Observable. Для этого нужно разобрать принцип работы оператора*/
             it
         })
         .subscribeOn(Schedulers.computation())
         .subscribe(observer)
 
     Thread.sleep(3000)
+}
+
+/** Несмотря на то, что в примере не используются observeOn/SubscribeOn с Schedulres - delay меняет поток потребления данных*/
+fun operatorsWithSchedulers() {
+    val observer: Observer<String> = object : Observer<String> {
+        override fun onComplete() {
+            println("Consumption all Completed [thread] - ${Thread.currentThread().name}\"")
+        }
+
+        override fun onNext(item: String) {
+            println("Consumption next $item [thread] - ${Thread.currentThread().name}")
+        }
+
+        override fun onError(e: Throwable) {
+            println("Consumption error Occured ${e.message} [thread] - ${Thread.currentThread().name}\"")
+        }
+
+        override fun onSubscribe(d: Disposable) {
+            println("onSubscribe [thread] - ${Thread.currentThread().name}\"")
+        }
+    }
+
+    val observable = Observable.just("A", "B", "C").delay(1, TimeUnit.SECONDS)
+
+    observable.subscribe(observer)
+
+    Thread.sleep(2000)
 }
